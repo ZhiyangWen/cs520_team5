@@ -1,10 +1,15 @@
+//  LoginView.swift
+//  UMeal
+//
+//  Created by Zhiyang Wen on 3/31/26.
+//
 import SwiftUI
 
 // Colors
 extension Color {
-    static let maroonPrimary = Color(red: 0.369, green: 0.008, blue: 0.008) // #5E0202
-    static let crimsonAccent = Color(red: 0.647, green: 0.000, blue: 0.204) // #A50034
-    static let coolGray      = Color(red: 0.541, green: 0.608, blue: 0.659) // #8A9BA8
+    static let maroon = Color(red: 0.369, green: 0.008, blue: 0.008) // #5E0202
+    static let crimson = Color(red: 0.647, green: 0.000, blue: 0.204) // #A50034
+    static let Gray      = Color(red: 0.541, green: 0.608, blue: 0.659) // #8A9BA8
 }
 
 struct LoginView: View {
@@ -15,8 +20,7 @@ struct LoginView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color(.systemGray6).ignoresSafeArea()
-
+                Color(.systemGray6).ignoresSafeArea() // Whole background
                 VStack(spacing: 0) {
                     // Header
                     VStack(spacing: 12) {
@@ -40,7 +44,7 @@ struct LoginView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.top, 60)
                     .padding(.bottom, 40)
-                    .background(Color.maroonPrimary)
+                    .background(Color.maroon)
 
             
                     VStack(spacing: 30) {
@@ -49,7 +53,7 @@ struct LoginView: View {
                             Text("University Email")
                                 .font(.system(size: 17, weight: .bold))
                                 .foregroundStyle(.black)
-                            TextField("student@umass.edu", text: $email)
+                            TextField("", text: $email)
                                 .keyboardType(.emailAddress)
                                 .autocapitalization(.none)
                                 .padding(12)
@@ -67,14 +71,14 @@ struct LoginView: View {
                             Text("Password")
                                 .font(.system(size: 17, weight: .bold))
                                 .foregroundStyle(.black)
-                            SecureField("••••••••", text: $password)
+                            SecureField("", text: $password)
                                 .padding(12)
                                 .frame(height: 60)
                                 .background(Color(.systemBackground))
                                 .cornerRadius(30)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 30)
-                                        .stroke(Color(.systemGray4), lineWidth: 2)
+                                .stroke(Color(.systemGray4), lineWidth: 2)
                                 )
                         }
 
@@ -85,7 +89,7 @@ struct LoginView: View {
                                 // TODO: Handle forget password right here
                             }
                             .font(.system(size: 13 ,weight: .semibold))
-                            .foregroundColor(Color.crimsonAccent)
+                            .foregroundColor(Color.crimson)
                         }
 
                         // Sign In button
@@ -104,7 +108,7 @@ struct LoginView: View {
                             }
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 14)
-                            .background(Color.crimsonAccent)
+                            .background(Color.crimson)
                             .cornerRadius(25)
                         }
                         .disabled(isLoading)
@@ -121,13 +125,14 @@ struct LoginView: View {
                             Rectangle()
                                 .frame(height: 0.5)
                                 .foregroundColor(Color(.systemGray4))
+
                         }
 
                         // Create account
                         NavigationLink(destination: Text("Sign Up")) {
                             Text("Create account")
                                 .font(.system(size: 18, weight: .semibold))
-                                .foregroundColor(Color.maroonPrimary)
+                                .foregroundColor(Color.maroon)
                         }
                     }
                     .padding(.horizontal, 28)
@@ -155,9 +160,5 @@ struct LoginView: View {
 #Preview {
     LoginView()
 }
-//  LoginView.swift
-//  UMeal
-//
-//  Created by Zhiyang Wen on 3/31/26.
-//
+
 
