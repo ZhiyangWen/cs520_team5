@@ -7,6 +7,29 @@
 import SwiftUI
 
 struct RecipeSearchView: View {
+    
+    //fetching database items from supabase
+    
+//    @State var instruments: [Instrument] = []
+//      var body: some View {
+//        List(instruments) { instrument in
+//          Text(instrument.name)
+//        }
+//        .overlay {
+//          if instruments.isEmpty {
+//            ProgressView()
+//          }
+//        }
+//        .task {
+//          do {
+//            instruments = try await supabase.from("instruments").select().execute().value
+//          } catch {
+//            dump(error)
+//          }
+//        }
+//      }
+//    
+    // temporary contents
     var body: some View {
         NavigationLink(destination: Home()){
             Text("Home")
