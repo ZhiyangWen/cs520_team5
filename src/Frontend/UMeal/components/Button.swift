@@ -20,7 +20,8 @@ struct Button: View {
       print("\(text) button was tapped")
     }) {
       Text(text)
-        .foregroundColor(Color.Gray)
+        .foregroundColor(Color.crimson)
+        .font(.system(size: 13 ,weight: .semibold))
         .padding()
         .background(Color.maroon)
         .cornerRadius(10)
