@@ -46,8 +46,29 @@ struct AddRecipe: View {
             
             Text("Recipe Tags:")
 
-            Button("Forget password?")
+            Button(action: {
+                //submit recipe info to database
+              print("\(text) button was tapped")
+            }) {
+              Text("Submit Recipe")
+                .foregroundColor(Color.crimson)
+                .font(.system(size: 13 ,weight: .semibold))
+                .padding()
+                .background(Color.maroon)
+                .cornerRadius(10)
+            }
             
+            Button(action: {
+            //go back to home page
+              Home()
+            }) {
+              Text("Back")
+                .foregroundColor(Color.crimson)
+                .font(.system(size: 13 ,weight: .semibold))
+                .padding()
+                .background(Color.Gray)
+                .cornerRadius(10)
+            }
         }
     }
 }
