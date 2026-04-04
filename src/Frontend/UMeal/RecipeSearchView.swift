@@ -31,12 +31,12 @@ struct RecipeSearchView: View {
 //    
     // temporary contents
     var body: some View {
+        Header()
         NavigationLink(destination: Home()){
             Text("Home")
         }
         Text("Search Recipes:")
         VStack{
-           
             Text("Recipe 1")
             Image(RecipeSearchView.self, "recipe1")
             Text("Recipe 2")
