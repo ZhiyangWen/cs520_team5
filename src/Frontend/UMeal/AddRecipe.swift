@@ -19,16 +19,34 @@ struct AddRecipe: View {
         VStack{
             Header()
             Text("Recipe Title")
-            
+            TextField("", text: $title)
+                .padding(12)
+                .frame(height: 60)
+                .background(Color(.systemBackground))
+                .cornerRadius(30)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 30)
+                        .stroke(Color(.systemGray4), lineWidth: 2)
+                )
             Text("Upload Image")
             
             Image(RecipeSearchView.self, "recipe1")
             Text("Recipe Ingredients:")
             
             Text("Recipe Instructions:")
+            TextField("", text: $instructions)
+                .padding(12)
+                .frame(height: 60)
+                .background(Color(.systemBackground))
+                .cornerRadius(30)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 30)
+                        .stroke(Color(.systemGray4), lineWidth: 2)
+                )
             
             Text("Recipe Tags:")
 
+            Button("Forget password?")
             
         }
     }
