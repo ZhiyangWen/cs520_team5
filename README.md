@@ -20,14 +20,21 @@ For most college students, eating in a way that supports their health goals is a
 | Database | Cassandra, Pornnapin |
 
 ## System Features
-**Meal/Recipe Search Page with Filters**
-**User Personal Profiles**
-**New Recipe Page**
-**Login Page**
-**Register Page**
-**Landing Page**
-**Saved Recipes**
-**Notifications**
+Meal/Recipe Search Page with Filters
+
+User Personal Profiles
+
+New Recipe Page
+
+Login Page
+
+Register Page
+
+Landing Page
+
+Saved Recipes
+
+Notifications
 
 
 
