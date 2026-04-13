@@ -36,6 +36,28 @@ Saved Recipes
 
 Notifications
 
+## How to Run the Project
+
+### Requirements
+- Mac with Xcode 25.4 or later
+
+### Steps
+1. Clone the repository
+   git clone https://github.com/ZhiyangWen/cs520_team5.git
+
+2. Navigate to the frontend
+   cd cs520_team5/src/Frontend
+
+3. Open the project in Xcode
+   open UMeal.xcodeproj
+
+4. Add Supabase credentials
+   - Open Instrument.swift
+   - Add your Supabase project URL and API key
+  
+5. Build and run
+   - Select iPhone simulator
+   - Build and run
 
 
 
