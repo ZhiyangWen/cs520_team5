@@ -7,14 +7,12 @@
 
 import SwiftUI
 
-extension Color {
-    static let maroon = Color(red: 0.369, green: 0.008, blue: 0.008) // #5E0202
-    static let crimson = Color(red: 0.647, green: 0.000, blue: 0.204) // #A50034
-    static let Gray      = Color(red: 0.541, green: 0.608, blue: 0.659) // #8A9BA8
-}
+
 
 
 struct AddRecipe: View {
+    @State private var title: String = ""
+    @State private var instructions: String = ""
     var body: some View {
         VStack{
             Header()
@@ -30,7 +28,7 @@ struct AddRecipe: View {
                 )
             Text("Upload Image")
             
-            Image(RecipeSearchView.self, "recipe1")
+            //Image(RecipeSearchView.self, "recipe1")
             Text("Recipe Ingredients:")
             
             Text("Recipe Instructions:")
@@ -48,7 +46,7 @@ struct AddRecipe: View {
 
             Button(action: {
                 //submit recipe info to database
-              print("\(text) button was tapped")
+              print("\(title) button was tapped")
             }) {
               Text("Submit Recipe")
                 .foregroundColor(Color.crimson)
@@ -60,13 +58,13 @@ struct AddRecipe: View {
             
             Button(action: {
             //go back to home page
-              Home()
+              Home(username: "")
             }) {
               Text("Back")
                 .foregroundColor(Color.crimson)
                 .font(.system(size: 13 ,weight: .semibold))
                 .padding()
-                .background(Color.Gray)
+                .background(Color.gray)
                 .cornerRadius(10)
             }
         }

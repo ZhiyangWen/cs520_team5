@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		5BC2596E2FA3D1E900F5C624 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = 5BC2596D2FA3D1E900F5C624 /* SwiftSoup */; };
+		5BC259712FA3D30000F5C624 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 5BC259702FA3D30000F5C624 /* Supabase */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		5B72786A2F7CB0D0007CEDEE /* UMeal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UMeal.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +28,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5BC259712FA3D30000F5C624 /* Supabase in Frameworks */,
+				5BC2596E2FA3D1E900F5C624 /* SwiftSoup in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +72,8 @@
 			);
 			name = UMeal;
 			packageProductDependencies = (
+				5BC2596D2FA3D1E900F5C624 /* SwiftSoup */,
+				5BC259702FA3D30000F5C624 /* Supabase */,
 			);
 			productName = UMeal;
 			productReference = 5B72786A2F7CB0D0007CEDEE /* UMeal.app */;
@@ -94,6 +103,10 @@
 			);
 			mainGroup = 5B7278612F7CB0CF007CEDEE;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				5BC2596C2FA3D1E900F5C624 /* XCRemoteSwiftPackageReference "SwiftSoup" */,
+				5BC2596F2FA3D30000F5C624 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 5B72786B2F7CB0D0007CEDEE /* Products */;
 			projectDirPath = "";
@@ -328,6 +341,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		5BC2596C2FA3D1E900F5C624 /* XCRemoteSwiftPackageReference "SwiftSoup" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/scinfu/SwiftSoup";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.13.4;
+			};
+		};
+		5BC2596F2FA3D30000F5C624 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		5BC2596D2FA3D1E900F5C624 /* SwiftSoup */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5BC2596C2FA3D1E900F5C624 /* XCRemoteSwiftPackageReference "SwiftSoup" */;
+			productName = SwiftSoup;
+		};
+		5BC259702FA3D30000F5C624 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5BC2596F2FA3D30000F5C624 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 5B7278622F7CB0CF007CEDEE /* Project object */;
 }

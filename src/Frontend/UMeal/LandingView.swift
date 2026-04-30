@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct DiningHall: Identifiable {
+struct DiningHallInfo: Identifiable {
     let id = UUID()
     let name: String
     let openHour: Int
@@ -34,36 +34,33 @@ struct LandingView: View {
     let userInitials = "ZW"
 
     @State private var selectedFilter = "All"
-    let filters = ["All", "High Protein", "Vegan", "Low Calories"] // Could have more options
+    let filters = ["All", "High Protein", "Vegan", "Low Calories"]
 
     let diningHalls = [
-        DiningHall(name: "Worcester Commons",
+        DiningHallInfo(name: "Worcester Commons",
                    openHour: 7, closeHour: 21,
                    hoursDisplay: "07:00 AM - 09:00 PM"),
-        DiningHall(name: "Franklin Dining Commons",
+        DiningHallInfo(name: "Franklin Dining Commons",
                    openHour: 7, closeHour: 21,
                    hoursDisplay: "07:00 AM - 09:00 PM"),
-        DiningHall(name: "Berkshire Dining Commons",
+        DiningHallInfo(name: "Berkshire Dining Commons",
                    openHour: 11, closeHour: 21,
                    hoursDisplay: "11:00 AM - 09:00 PM"),
-        DiningHall(name: "Hampshire Dining Commons",
+        DiningHallInfo(name: "Hampshire Dining Commons",
                    openHour: 7, closeHour: 21,
                    hoursDisplay: "07:00 AM - 09:00 PM")
     ]
 
     let recommendations = [
-        // TODO
         Recommendation(name: "Baked Chicken Thigh",
                        calories: 121, protein: 14.2, rating: 2),
         Recommendation(name: "Caesar Salad",
                        calories: 95, protein: 8.0, rating: 4)
     ]
 
-    
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // Fixed Header
                 HStack {
                     Text("UMeal")
                         .font(.system(size: 24, weight: .bold))
@@ -90,11 +87,9 @@ struct LandingView: View {
                 .background(Color.maroon)
                 .padding(.top, 60)
 
-                // All scrollable content below header
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 20) {
 
-                        // Dining Halls
                         VStack(alignment: .leading, spacing: 20) {
                             Text("Dining Halls")
                                 .font(.system(size: 20, weight: .bold))
@@ -104,7 +99,6 @@ struct LandingView: View {
                             }
                         }
 
-                        // Filter
                         VStack(alignment: .leading, spacing: 20) {
                             Text("Filter")
                                 .font(.system(size: 20, weight: .bold))
@@ -112,7 +106,6 @@ struct LandingView: View {
                             FlowLayout(filters: filters, selected: $selectedFilter)
                         }
 
-                        // Today's Recommendations
                         VStack(alignment: .leading, spacing: 20) {
                             Text("Today's Recommendations")
                                 .font(.system(size: 20, weight: .bold))
@@ -127,7 +120,6 @@ struct LandingView: View {
                             }
                         }
 
-                        // Explore More
                         VStack(alignment: .leading, spacing: 20) {
                             Text("Explore More")
                                 .font(.system(size: 20, weight: .bold))
@@ -159,7 +151,7 @@ struct LandingView: View {
 
 // Dining Hall
 struct DiningHallCard: View {
-    let hall: DiningHall
+    let hall: DiningHallInfo   
 
     var body: some View {
         HStack {
@@ -184,7 +176,6 @@ struct DiningHallCard: View {
         .padding(.vertical, 15)
         .background(hall.isOpen ? Color.maroon : Color.maroon.opacity(0.6))
         .cornerRadius(25)
-    
     }
 }
 
@@ -279,9 +270,8 @@ struct RecommendationCard: View {
         .cornerRadius(12)
     }
 }
-   
 
-//Explore
+// Explore
 struct ExploreButton: View {
     let icon: String
     let title: String
@@ -302,7 +292,6 @@ struct ExploreButton: View {
         .cornerRadius(14)
     }
 }
-
 
 #Preview {
     LandingView()
