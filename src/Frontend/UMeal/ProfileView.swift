@@ -81,10 +81,16 @@ private struct ProfileHeaderView: View {
 // Profile View
 struct ProfileView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var dailyCalories: Int = 1000
-    @State private var proteinTarget: Int = 120
-    @State private var restrictions: [String] = ["Nut Allergy", "Vegan"]
-    @State private var newMenuAlerts: Bool = true
+
+    @AppStorage("dailyCalories") private var dailyCalories: Int = 1000
+    @AppStorage("proteinTarget") private var proteinTarget: Int = 120
+    @AppStorage("newMenuAlerts") private var newMenuAlerts: Bool = true
+
+    @State private var restrictions: [String] = {
+        let saved = UserDefaults.standard.stringArray(forKey: "restrictions")
+        return saved ?? ["Nut Allergy", "Vegan"]
+    }()
+
     @State private var showingCaloriesEditor = false
     @State private var showingProteinEditor = false
     @State private var showingAddRestriction = false
@@ -133,7 +139,7 @@ struct ProfileView: View {
 
                     // Save Button
                     Button {
-                        // TODO: Save changes
+                        UserDefaults.standard.set(restrictions, forKey: "restrictions")
                     } label: {
                         Text("Save Changes")
                             .font(.system(size: 18, weight: .semibold))
@@ -266,4 +272,3 @@ struct ProfileView: View {
         ProfileView()
     }
 }
-

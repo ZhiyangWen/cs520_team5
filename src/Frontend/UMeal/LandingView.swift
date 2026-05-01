@@ -19,22 +19,13 @@ struct DiningHallInfo: Identifiable {
     }
 }
 
-
-struct Recommendation: Identifiable {
-    let id = UUID()
-    let name: String
-    let calories: Int
-    let protein: Double
-    let rating: Int
-}
-
-
 struct LandingView: View {
+    @StateObject private var menuService = DiningMenuService()
     let userName = "Zhiyang"
     let userInitials = "ZW"
 
     @State private var selectedFilter = "All"
-    let filters = ["All", "High Protein", "Vegan", "Low Calories"]
+    let filters = ["All", "Vegan", "Vegetarian", "Halal"]
 
     let diningHalls = [
         DiningHallInfo(name: "Worcester Commons",
@@ -51,12 +42,28 @@ struct LandingView: View {
                    hoursDisplay: "07:00 AM - 09:00 PM")
     ]
 
-    let recommendations = [
-        Recommendation(name: "Baked Chicken Thigh",
-                       calories: 121, protein: 14.2, rating: 2),
-        Recommendation(name: "Caesar Salad",
-                       calories: 95, protein: 8.0, rating: 4)
-    ]
+
+    var todaysMeals: [DiningMeal] {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        let today = formatter.string(from: Date())
+
+        let filtered = menuService.meals.filter { meal in
+            guard meal.date == today else { return false }
+            switch selectedFilter {
+            case "Vegan":
+                return meal.dietaryFlags.isVegan
+            case "Vegetarian":
+                return meal.dietaryFlags.isVegetarian
+            case "Halal":
+                return meal.dietaryFlags.isHalal
+            default:
+                return true
+            }
+        }
+        return Array(filtered.prefix(4))
+    }
+
 
     var body: some View {
         NavigationStack {
@@ -70,7 +77,7 @@ struct LandingView: View {
                         Text("Hi, \(userName) 👋")
                             .font(.system(size: 14))
                             .foregroundStyle(.white.opacity(0.9))
-                        NavigationLink(destination: Text(" User Profile")){
+                        NavigationLink(destination: ProfileView()) {
                             ZStack {
                                 Circle()
                                     .fill(Color.crimson)
@@ -90,6 +97,7 @@ struct LandingView: View {
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 20) {
 
+                        // Dining Halls
                         VStack(alignment: .leading, spacing: 20) {
                             Text("Dining Halls")
                                 .font(.system(size: 20, weight: .bold))
@@ -99,6 +107,7 @@ struct LandingView: View {
                             }
                         }
 
+                        // Filter
                         VStack(alignment: .leading, spacing: 20) {
                             Text("Filter")
                                 .font(.system(size: 20, weight: .bold))
@@ -106,20 +115,41 @@ struct LandingView: View {
                             FlowLayout(filters: filters, selected: $selectedFilter)
                         }
 
+                        // Today's Recommendations
                         VStack(alignment: .leading, spacing: 20) {
                             Text("Today's Recommendations")
                                 .font(.system(size: 20, weight: .bold))
                                 .foregroundStyle(Color.maroon)
-                            LazyVGrid(columns: [
-                                GridItem(.flexible()),
-                                GridItem(.flexible())
-                            ], spacing: 12) {
-                                ForEach(recommendations) { rec in
-                                    RecommendationCard(rec: rec)
+
+                            if menuService.isLoading {
+                                // Show loading spinner while scraping
+                                HStack {
+                                    Spacer()
+                                    ProgressView("Loading menu...")
+                                    Spacer()
+                                }
+                                .padding()
+                            } else if todaysMeals.isEmpty {
+                                // Show message if no meals found
+                                Text("No meals available today.")
+                                    .foregroundStyle(.gray)
+                                    .font(.system(size: 14))
+                                    .padding()
+                                
+                            } else {
+                                // Show real scraped meals
+                                LazyVGrid(columns: [
+                                    GridItem(.flexible()),
+                                    GridItem(.flexible())
+                                ], spacing: 12) {
+                                    ForEach(todaysMeals, id: \.name) { meal in
+                                        MealCard(meal: meal)
+                                    }
                                 }
                             }
                         }
 
+                        // Explore More
                         VStack(alignment: .leading, spacing: 20) {
                             Text("Explore More")
                                 .font(.system(size: 20, weight: .bold))
@@ -145,13 +175,16 @@ struct LandingView: View {
             }
             .navigationBarHidden(true)
             .ignoresSafeArea(edges: .top)
+            .task {
+                await menuService.loadOnLaunch()
+            }
         }
     }
 }
 
-// Dining Hall
+// Dining Hall Card
 struct DiningHallCard: View {
-    let hall: DiningHallInfo   
+    let hall: DiningHallInfo
 
     var body: some View {
         HStack {
@@ -176,6 +209,62 @@ struct DiningHallCard: View {
         .padding(.vertical, 15)
         .background(hall.isOpen ? Color.maroon : Color.maroon.opacity(0.6))
         .cornerRadius(25)
+    }
+}
+
+//New MealCard using real DiningMeal data
+struct MealCard: View {
+    let meal: DiningMeal
+    @State private var isSaved = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color.maroon.opacity(0.3))
+                .frame(height: 70)
+
+            Text(meal.name)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(.white)
+                .lineLimit(2)
+
+            if let calories = meal.calories {
+                Text("Calories \(calories)")
+                    .font(.system(size: 10))
+                    .foregroundStyle(.white.opacity(0.8))
+            }
+
+            if let protein = meal.protein {
+                Text("Protein \(protein, specifier: "%.1f")g")
+                    .font(.system(size: 10))
+                    .foregroundStyle(.white.opacity(0.8))
+            }
+
+            HStack {
+                // Dietary flags
+                if meal.dietaryFlags.isVegan {
+                    Text("V")
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundStyle(.green)
+                }
+                if meal.dietaryFlags.isHalal {
+                    Text("H")
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundStyle(.yellow)
+                }
+                Spacer()
+                Button {
+                    isSaved.toggle()
+                } label: {
+                    Image(systemName: isSaved ? "star.fill" : "star")
+                        .font(.system(size: 18))
+                        .foregroundStyle(.yellow)
+                }
+            }
+        }
+        .padding(10)
+        .background(Color.maroon)
+        .cornerRadius(12)
     }
 }
 
@@ -223,51 +312,6 @@ struct FilterChip: View {
                         .stroke(Color.crimson, lineWidth: 1.5)
                 )
         }
-    }
-}
-
-// Recommendation
-struct RecommendationCard: View {
-    let rec: Recommendation
-    @State private var isSaved = false
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            RoundedRectangle(cornerRadius: 8)
-                .fill(Color.maroon.opacity(0.3))
-                .frame(height: 70)
-
-            Text(rec.name)
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundStyle(.white)
-            Text("Calories \(rec.calories)")
-                .font(.system(size: 10))
-                .foregroundStyle(.white.opacity(0.8))
-            Text("Protein \(rec.protein, specifier: "%.1f")g")
-                .font(.system(size: 10))
-                .foregroundStyle(.white.opacity(0.8))
-
-            HStack {
-                HStack(spacing: 2) {
-                    ForEach(1...5, id: \.self) { star in
-                        Image(systemName: star <= rec.rating ? "star.fill" : "star")
-                            .font(.system(size: 10))
-                            .foregroundStyle(.white.opacity(0.5))
-                    }
-                }
-                Spacer()
-                Button {
-                    isSaved.toggle()
-                } label: {
-                    Image(systemName: isSaved ? "star.fill" : "star")
-                        .font(.system(size: 18))
-                        .foregroundStyle(.yellow)
-                }
-            }
-        }
-        .padding(10)
-        .background(Color.maroon)
-        .cornerRadius(12)
     }
 }
 
