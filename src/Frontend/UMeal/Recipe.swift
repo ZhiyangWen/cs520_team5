@@ -25,19 +25,19 @@ struct RecipeDetailView: View {
 
                     // Title + favorite
                     HStack {
-                        Text(recipe.name)
+                        Text(recipe.meal_name)
                             .font(.title2.bold())
                             .foregroundColor(.primary)
                         Spacer()
-                        Image(systemName: recipe.isFavorite ? "star.fill" : "star")
-                            .foregroundColor(recipe.isFavorite ? .yellow : .gray)
-                            .font(.title3)
+//                        Image(systemName: recipe.isFavorite ? "star.fill" : "star")
+//                            .foregroundColor(recipe.isFavorite ? .yellow : .gray)
+//                            .font(.title3)
                     }
 
                     // Nutrition chips
                     HStack(spacing: 12) {
-                        NutritionBadge(label: "Protein", value: recipe.protein, unit: "g", color: maroon)
-                        NutritionBadge(label: "Fiber", value: recipe.fiber, unit: "g", color: maroon)
+                        NutritionBadge(label: "Protein", value: Double(recipe.protein), unit: "g", color: maroon)
+                        NutritionBadge(label: "Fiber", value: Double(recipe.fiber), unit: "g", color: maroon)
                     }
 
                     Divider()
@@ -62,7 +62,7 @@ struct RecipeDetailView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Instructions")
                             .font(.headline)
-                        Text(recipe.instructions)
+                        Text(recipe.instructions ?? "")
                             .foregroundColor(.secondary)
                             .font(.subheadline)
                     }
@@ -97,15 +97,14 @@ struct NutritionBadge: View {
     }
 }
 
-#Preview {
-    NavigationStack {
-        RecipeDetailView(recipe: Recipe(
-            name: "Orange Chicken",
-            isFavorite: true,
-            protein: 10.5,
-            fiber: 3.2,
-            ingredients: ["Chicken", "Orange"],
-            instructions: "",
-        ))
-    }
-}
+//#Preview {
+//    NavigationStack {
+//        RecipeDetailView(recipe: Recipe(
+//            meal_name: "Orange Chicken",
+//            protein: 10.5,
+//            fiber: 3.2,
+//            ingredients: "Chicken, Orange",
+//            instructions: "",
+//        ))
+//    }
+//}
