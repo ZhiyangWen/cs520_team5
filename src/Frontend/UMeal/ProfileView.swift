@@ -121,7 +121,7 @@ struct ProfileView: View {
     @State private var tempCalories: Int = 1000
     @State private var tempProtein: Int = 120
 
-    // NEW: loading state for Supabase
+    // loading state for Supabase
     @State private var isLoadingProfile = false
 
     var body: some View {
