@@ -1,15 +1,15 @@
-// Services/HTMLMenuParser.swift
-// UMeal – CS520 Team 5
-// Author: Pornnapin Tangkoskul
+//// Services/HTMLMenuParser.swift
+//// UMeal – CS520 Team 5
+//// Author: Pornnapin Tangkoskul
+////
+//// Parses raw HTML from umassdining.com/locations-menus/<hall>/<date>
+//// into an array of DiningMeal objects.
+////
+//// Strategy:
+////   1. Primary:  CSS selector parsing (fast, structured)
+////   2. Fallback: Text-based parsing (robust to layout changes)
+////   3. Malformed nodes are silently skipped (never crash)
 //
-// Parses raw HTML from umassdining.com/locations-menus/<hall>/<date>
-// into an array of DiningMeal objects.
-//
-// Strategy:
-//   1. Primary:  CSS selector parsing (fast, structured)
-//   2. Fallback: Text-based parsing (robust to layout changes)
-//   3. Malformed nodes are silently skipped (never crash)
-
 import Foundation
 import SwiftSoup
 
@@ -59,58 +59,87 @@ enum HTMLMenuParser {
     ) throws -> [DiningMeal] {
 
         var meals: [DiningMeal] = []
+        var currentPeriod: MealPeriod? = nil
+        var currentStation: String? = nil
 
-        // Try multiple known class name patterns (site may change between semesters)
-        let periodSelectors = [
-            ".meal-period-group",
-            ".menu-period",
-            ".views-row",            // Drupal-based fallback
-            "[class*='meal-period']"
-        ]
+        guard let body = doc.body() else { return [] }
 
-        for selector in periodSelectors {
-            guard let periodElements = try? doc.select(selector),
-                !periodElements.isEmpty()
-            else { continue }
+        // Select h2, h3, and ONLY li items whose anchor href is "#inline"
+        let elements = try body.select("h2, h3, li:has(a[href='#inline'])")
 
-            for periodEl in periodElements.array() {
-                // Determine meal period from heading text
-                let periodText = (try? periodEl.select("h3, h4, .meal-period-name, .period-title")
-                    .first()?.text()) ?? ""
-                guard let period = MealPeriod.from(rawText: periodText) else { continue }
+        for el in elements.array() {
+            let tag = el.tagName().lowercased()
 
-                // Items may be grouped by station or listed directly
-                let stationGroups = (try? periodEl.select(".meal-station, .station-group, .field-group")) ?? Elements()
-
-                if stationGroups.isEmpty() {
-                    // No station grouping — parse items directly under period
-                    let items = (try? periodEl.select(".menu-item-data, .menu-item, .field-item")) ?? Elements()
-                    for item in items.array() {
-                        if let meal = parseMealItem(item, hall: hall, date: date,
-                                                    period: period, station: nil) {
-                            meals.append(meal)
-                        }
-                    }
-                } else {
-                    for stationEl in stationGroups.array() {
-                        let stationName = (try? stationEl.select("h4, h5, .station-title").first()?.text())
-                        let items = (try? stationEl.select(".menu-item-data, .menu-item, .field-item")) ?? Elements()
-                        for item in items.array() {
-                            if let meal = parseMealItem(item, hall: hall, date: date,
-                                                        period: period, station: stationName) {
-                                meals.append(meal)
-                            }
-                        }
-                    }
+            if tag == "h2" {
+                let text = (try? el.text()) ?? ""
+                if let period = MealPeriod.from(rawText: text) {
+                    currentPeriod = period
+                    currentStation = nil
                 }
+                continue
             }
-            // If we found meals with this selector, stop trying others
-            if !meals.isEmpty { break }
+
+            if tag == "h3" {
+                let text = (try? el.text()) ?? ""
+                if MealPeriod.from(rawText: text) == nil && !text.isEmpty {
+                    currentStation = text
+                }
+                continue
+            }
+
+            // It's a menu item li
+            guard let period = currentPeriod else { continue }
+            guard let anchor = try? el.select("a[href='#inline']").first() else { continue }
+
+            // Get item name
+            let name = ((try? anchor.text()) ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !name.isEmpty else { continue }
+
+            // Read all nutrition from data- attributes
+            let calories = Int((try? anchor.attr("data-calories")) ?? "")
+            let proteinStr = ((try? anchor.attr("data-protein")) ?? "").replacingOccurrences(of: "g", with: "")
+            let carbsStr = ((try? anchor.attr("data-total-carb")) ?? "").replacingOccurrences(of: "g", with: "")
+            let fatStr = ((try? anchor.attr("data-total-fat")) ?? "").replacingOccurrences(of: "g", with: "")
+            let protein = Double(proteinStr)
+            let carbs = Double(carbsStr)
+            let fat = Double(fatStr)
+
+            // Dietary flags from data-diet-str
+            var flags = DietaryFlags()
+            let dietStr = ((try? anchor.attr("data-clean-diet-str")) ?? "").lowercased()
+
+            if dietStr.contains("vegan")        { flags.isVegan = true; flags.isVegetarian = true }
+            if dietStr.contains("vegetarian")   { flags.isVegetarian = true }
+            if dietStr.contains("plant based")  { flags.isVegetarian = true }
+            if dietStr.contains("halal")        { flags.isHalal = true }
+            if dietStr.contains("kosher")       { flags.isKosher = true }
+            if dietStr.contains("gluten")       { flags.isGlutenFree = true }
+
+            // Allergens from data-allergens
+            let allergenStr = (try? anchor.attr("data-allergens")) ?? ""
+            if !allergenStr.isEmpty {
+                flags.allergens = allergenStr
+                    .components(separatedBy: ",")
+                    .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                    .filter { !$0.isEmpty }
+            }
+
+            meals.append(DiningMeal(
+                name:         name,
+                hall:         hall,
+                date:         date,
+                mealPeriod:   period,
+                station:      currentStation,
+                dietaryFlags: flags,
+                calories:     calories,
+                protein:      protein,
+                carbs:        carbs,
+                fat:          fat
+            ))
         }
 
         return meals
     }
-
     // MARK: - Individual Item Parser
 
     private static func parseMealItem(

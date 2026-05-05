@@ -1,7 +1,7 @@
-// Models/DiningMeal.swift
-// UMeal – CS520 Team 5
-// Author: Pornnapin Tangkoskul
-
+//// Models/DiningMeal.swift
+//// UMeal – CS520 Team 5
+//// Author: Pornnapin Tangkoskul
+//
 import Foundation
 
 // MARK: - Enums

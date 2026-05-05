@@ -1,7 +1,7 @@
-// Services/DiningCache.swift
-// UMeal – CS520 Team 5
-// Author: Pornnapin Tangkoskul
-
+//// Services/DiningCache.swift
+//// UMeal – CS520 Team 5
+//// Author: Pornnapin Tangkoskul
+//
 import Foundation
 
 /// Manages on-device caching of scraped dining menus.

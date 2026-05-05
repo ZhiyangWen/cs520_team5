@@ -5,15 +5,16 @@
 //  Created by Zhiyang Wen on 4/20/26.
 
 
+
 import SwiftUI
 
 struct SignUpView: View {
+    @EnvironmentObject var auth: AuthManager
     @Environment(\.dismiss) private var dismiss
     @State private var fullName: String = ""
     @State private var email: String = ""
     @State private var password: String = ""
     @State private var confirmedPassword: String = ""
-    @State private var isLoading: Bool = false
     @State private var showPasswordMismatch: Bool = false
 
     var body: some View {
@@ -38,12 +39,12 @@ struct SignUpView: View {
                         .foregroundColor(.white)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.top, 60)
+                .padding(.top, 90)
                 .padding(.bottom, 40)
                 .background(Color.maroon)
 
                 // Form
-                VStack(spacing: 24) {
+                VStack(spacing: 20) {
 
                     // Full Name
                     VStack(alignment: .leading, spacing: 10) {
@@ -121,12 +122,19 @@ struct SignUpView: View {
                         }
                     }
 
+                    if !auth.errorMessage.isEmpty {
+                        Text(auth.errorMessage)
+                            .foregroundColor(.red)
+                            .font(.system(size: 13))
+                            .multilineTextAlignment(.center)
+                    }
+
                     // Create Account Button
                     Button {
                         handleSignUp()
                     } label: {
                         Group {
-                            if isLoading {
+                            if auth.isLoading {
                                 ProgressView()
                                     .tint(.white)
                             } else {
@@ -140,7 +148,7 @@ struct SignUpView: View {
                         .background(Color.crimson)
                         .cornerRadius(25)
                     }
-                    .disabled(isLoading)
+                    .disabled(auth.isLoading)
 
                     // Already have account
                     HStack {
@@ -166,7 +174,7 @@ struct SignUpView: View {
                 }
                 .padding(.horizontal, 28)
                 .padding(.top, 36)
-                .padding(.bottom, 40)
+                .padding(.bottom, 70)
                 .background(Color(.systemGray6))
 
                 Spacer()
@@ -177,15 +185,14 @@ struct SignUpView: View {
 
     private func handleSignUp() {
         showPasswordMismatch = false
+        auth.errorMessage = ""
         guard !fullName.isEmpty, !email.isEmpty, !password.isEmpty else { return }
         guard password == confirmedPassword else {
             showPasswordMismatch = true
             return
         }
-        isLoading = true
-        // TODO: Registration API call here
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            isLoading = false
+        Task {
+            await auth.signUp(email: email, password: password, fullName: fullName)
         }
     }
 }
@@ -193,7 +200,6 @@ struct SignUpView: View {
 #Preview {
     NavigationStack {
         SignUpView()
+            .environmentObject(AuthManager())
     }
 }
-
-
