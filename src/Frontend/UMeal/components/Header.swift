@@ -13,12 +13,12 @@ import SwiftUI
 struct Header: View {
     var body: some View {
         VStack(spacing: 10) {
-            // Our logo
+            // logo
             ZStack {
                 Circle()
                     .fill(Color.white)
                     .frame(width: 100, height: 100)
-                // Imported from figma
+           
                 Image("Vector")
                     .resizable()
                     .scaledToFit()
@@ -31,8 +31,8 @@ struct Header: View {
                 .foregroundColor(.white)
         }
         .frame(maxWidth: .infinity)
-        .padding(.top, 20)
-        .padding(.bottom, 20)
+        .padding(.top, 18)
+        .padding(.bottom, 18)
         .background(Color(red: 0.369, green: 0.008, blue: 0.008))
     }
 }

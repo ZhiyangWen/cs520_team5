@@ -10,6 +10,7 @@ struct Recipe: Identifiable {
     let instructions: String
 }
 
+
 struct RecipeSearchView: View {
     @State private var searchText: String = ""
 
