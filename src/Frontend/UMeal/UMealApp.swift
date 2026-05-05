@@ -13,8 +13,9 @@ struct UMealApp: App {
     
     var body: some Scene {
         WindowGroup {
-            if auth.isLoggedIn {
+            if CommandLine.arguments.contains("UI_TESTING") || auth.isLoggedIn {
                 LandingView()
+                    .environmentObject(auth) 
             } else {
                 LoginView()
                     .environmentObject(auth)

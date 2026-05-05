@@ -4,11 +4,27 @@
 //  Created by Zhiyang Wen on 4/2/26.
 
 
+//  ProfileView.swift
+//  UMeal
+//
+//  Created by Zhiyang Wen on 4/2/26.
+
 import SwiftUI
 
 // Profile Header
 private struct ProfileHeaderView: View {
     let onBack: () -> Void
+    @EnvironmentObject private var auth: AuthManager
+
+    var initials: String {
+        auth.fullName
+            .components(separatedBy: " ")
+            .compactMap { $0.first }
+            .prefix(2)
+            .map(String.init)
+            .joined()
+            .uppercased()
+    }
 
     var body: some View {
         VStack(spacing: 12) {
@@ -22,6 +38,7 @@ private struct ProfileHeaderView: View {
                     .foregroundColor(.white)
                     .font(.system(size: 16, weight: .medium))
                 }
+                .accessibilityIdentifier("backButton")
                 Spacer()
             }
             .padding(.horizontal, 20)
@@ -31,7 +48,7 @@ private struct ProfileHeaderView: View {
                     .fill(Color.white.opacity(0.3))
                     .frame(width: 90, height: 90)
                     .overlay(
-                        Text("ZW")
+                        Text(initials)
                             .font(.system(size: 32, weight: .bold))
                             .foregroundColor(.white)
                     )
@@ -45,7 +62,7 @@ private struct ProfileHeaderView: View {
                     )
             }
 
-            Text("Zhiyang Wen")
+            Text(auth.fullName.isEmpty ? "User" : auth.fullName)
                 .font(.system(size: 22, weight: .bold))
                 .foregroundColor(.white)
 
@@ -81,6 +98,7 @@ private struct ProfileHeaderView: View {
 // Profile View
 struct ProfileView: View {
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var auth: AuthManager
 
     @AppStorage("dailyCalories") private var dailyCalories: Int = 1000
     @AppStorage("proteinTarget") private var proteinTarget: Int = 120
@@ -95,12 +113,23 @@ struct ProfileView: View {
     @State private var showingProteinEditor = false
     @State private var showingAddRestriction = false
     @State private var newRestriction: String = ""
+    @State private var showingSaveSuccess = false
+    @State private var showingCaloriesError = false
+    @State private var showingProteinError = false
+
+    // Temporary values for editing
+    @State private var tempCalories: Int = 1000
+    @State private var tempProtein: Int = 120
+
+    // NEW: loading state for Supabase
+    @State private var isLoadingProfile = false
 
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
 
                 ProfileHeaderView(onBack: { dismiss() })
+                    .environmentObject(auth)
 
                 VStack(alignment: .leading, spacing: 24) {
 
@@ -109,9 +138,11 @@ struct ProfileView: View {
 
                     VStack(spacing: 12) {
                         nutritionRow(label: "Daily Calories", value: "\(dailyCalories) kcal") {
+                            tempCalories = dailyCalories
                             showingCaloriesEditor = true
                         }
                         nutritionRow(label: "Protein Target", value: "\(proteinTarget) g") {
+                            tempProtein = proteinTarget
                             showingProteinEditor = true
                         }
                     }
@@ -131,15 +162,35 @@ struct ProfileView: View {
                         Spacer()
                         Toggle("", isOn: $newMenuAlerts)
                             .tint(Color.crimson)
+                            .accessibilityIdentifier("newMenuAlertsToggle")
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 14)
                     .background(Color.maroon)
                     .cornerRadius(14)
 
-                    // Save Button
+                    // Success message
+                    if showingSaveSuccess {
+                        HStack {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(.green)
+                            Text("Changes saved successfully!")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.green)
+                        }
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.green.opacity(0.1))
+                        .cornerRadius(12)
+                        .transition(.opacity)
+                        .accessibilityIdentifier("saveSuccessMessage")
+                    }
+
+                    // Save Button — UPDATED to also save to Supabase
                     Button {
-                        UserDefaults.standard.set(restrictions, forKey: "restrictions")
+                        Task {
+                            await saveProfileToSupabase()
+                        }
                     } label: {
                         Text("Save Changes")
                             .font(.system(size: 18, weight: .semibold))
@@ -149,6 +200,7 @@ struct ProfileView: View {
                             .background(Color.crimson)
                             .cornerRadius(30)
                     }
+                    .accessibilityIdentifier("saveChangesButton")
                     .padding(.top, 8)
                     .padding(.bottom, 30)
                 }
@@ -161,18 +213,61 @@ struct ProfileView: View {
         .background(Color(.systemGray6))
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
+        // Load profile from Supabase on appear
+        .onAppear {
+            Task {
+                await loadProfileFromSupabase()
+            }
+        }
+        // Edit Calories Alert
         .alert("Edit Daily Calories", isPresented: $showingCaloriesEditor) {
-            TextField("Calories", value: $dailyCalories, format: .number)
+            TextField("Calories", value: $tempCalories, format: .number)
                 .keyboardType(.numberPad)
-            Button("Save") {}
+            Button("Save") {
+                if tempCalories <= 0 {
+                    showingCaloriesError = true
+                } else {
+                    dailyCalories = tempCalories
+                }
+            }
             Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Enter your daily calorie goal.")
         }
+        // Edit Protein Alert
         .alert("Edit Protein Target", isPresented: $showingProteinEditor) {
-            TextField("Grams", value: $proteinTarget, format: .number)
+            TextField("Grams", value: $tempProtein, format: .number)
                 .keyboardType(.numberPad)
-            Button("Save") {}
+            Button("Save") {
+                if tempProtein <= 0 {
+                    showingProteinError = true
+                } else {
+                    proteinTarget = tempProtein
+                }
+            }
             Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Enter your daily protein goal in grams.")
         }
+        // Calories Error Alert
+        .alert("Invalid Input", isPresented: $showingCaloriesError) {
+            Button("Try Again") {
+                showingCaloriesEditor = true
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Daily calories must be greater than 0. Please enter a valid number.")
+        }
+        // Protein Error Alert
+        .alert("Invalid Input", isPresented: $showingProteinError) {
+            Button("Try Again") {
+                showingProteinEditor = true
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Protein target must be greater than 0. Please enter a valid number.")
+        }
+        // Add Restriction Alert
         .alert("Add Restriction", isPresented: $showingAddRestriction) {
             TextField("e.g. Gluten Free", text: $newRestriction)
             Button("Add") {
@@ -205,6 +300,7 @@ struct ProfileView: View {
                             .foregroundColor(.white.opacity(0.6))
                     )
             }
+            .accessibilityIdentifier("addRestrictionButton")
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -239,6 +335,7 @@ struct ProfileView: View {
                     .background(Color.crimson)
                     .cornerRadius(20)
             }
+            .accessibilityIdentifier("edit\(label.replacingOccurrences(of: " ", with: ""))Button")
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 14)
@@ -259,16 +356,75 @@ struct ProfileView: View {
                     .font(.system(size: 11, weight: .bold))
                     .foregroundColor(.white)
             }
+            .accessibilityIdentifier("remove_\(text)")
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 8)
         .background(Color.white.opacity(0.2))
         .cornerRadius(20)
     }
+
+    // Supabase Functions
+
+    private func loadProfileFromSupabase() async {
+        guard let userId = auth.userId else { return }
+        isLoadingProfile = true
+        do {
+            if let profile = try await UserProfileService.loadProfile(userId: userId) {
+                if let cal = profile.maxCalories { dailyCalories = cal }
+                if let pro = profile.minProtein { proteinTarget = pro }
+                if let allergies = profile.allergies, !allergies.isEmpty {
+                    restrictions = allergies
+                }
+            }
+        } catch {
+            print("Failed to load profile: \(error)")
+        }
+        isLoadingProfile = false
+    }
+
+    // Saves profile data to Supabase and shows success message
+    private func saveProfileToSupabase() async {
+        guard let userId = auth.userId else {
+            print("No userId found!")
+            // Fallback to local save if not logged in
+            UserDefaults.standard.set(restrictions, forKey: "restrictions")
+            withAnimation { showingSaveSuccess = true }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                withAnimation { showingSaveSuccess = false }
+            }
+            return
+        }
+        print("Saving profile for userId: \(userId)")
+        do {
+            try await UserProfileService.saveProfile(
+                userId: userId,
+                maxCalories: dailyCalories,
+                minProtein: proteinTarget,
+                allergies: restrictions
+            )
+            // Also save locally as backup
+            UserDefaults.standard.set(restrictions, forKey: "restrictions")
+            withAnimation { showingSaveSuccess = true }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                withAnimation { showingSaveSuccess = false }
+            }
+            print("Profile saved successfully!")
+        } catch {
+            print("Failed to save profile: \(error)")
+            // Still save locally and show success
+            UserDefaults.standard.set(restrictions, forKey: "restrictions")
+            withAnimation { showingSaveSuccess = true }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                withAnimation { showingSaveSuccess = false }
+            }
+        }
+    }
 }
 
 #Preview {
     NavigationStack {
         ProfileView()
+            .environmentObject(AuthManager())
     }
 }

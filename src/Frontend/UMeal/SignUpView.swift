@@ -192,7 +192,7 @@ struct SignUpView: View {
             return
         }
         Task {
-            await auth.signUp(email: email, password: password)
+            await auth.signUp(email: email, password: password, fullName: fullName)
         }
     }
 }

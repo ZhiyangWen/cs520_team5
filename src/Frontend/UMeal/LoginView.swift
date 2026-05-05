@@ -54,6 +54,7 @@ struct LoginView: View {
                                     RoundedRectangle(cornerRadius: 30)
                                         .stroke(Color(.systemGray4), lineWidth: 2)
                                 )
+                                .accessibilityIdentifier("emailField")
                         }
 
                         // Password field
@@ -70,6 +71,7 @@ struct LoginView: View {
                                     RoundedRectangle(cornerRadius: 30)
                                         .stroke(Color(.systemGray4), lineWidth: 2)
                                 )
+                                .accessibilityIdentifier("passwordField")
                         }
 
                         
@@ -84,7 +86,6 @@ struct LoginView: View {
                         HStack {
                             Spacer()
                             Button("Forget password?") {
-                                // TODO: Handle forget password
                             }
                             .font(.system(size: 13, weight: .semibold))
                             .foregroundColor(Color.crimson)
@@ -109,7 +110,8 @@ struct LoginView: View {
                             .background(Color.crimson)
                             .cornerRadius(25)
                         }
-                        .disabled(auth.isLoading)  
+                        .disabled(auth.isLoading)
+                        .accessibilityIdentifier("signInButton")
 
                         // Divider
                         HStack {

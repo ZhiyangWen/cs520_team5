@@ -20,12 +20,14 @@ struct DiningHallInfo: Identifiable {
 }
 
 struct LandingView: View {
+    @AppStorage("proteinTarget") private var proteinTarget: Int = 120
+    @AppStorage("dailyCalories") private var dailyCalories: Int = 1000
     @StateObject private var menuService = DiningMenuService()
-    let userName = "Zhiyang"
-    let userInitials = "ZW"
+    @State private var navigateToProfile = false
+    @EnvironmentObject private var auth: AuthManager
 
     @State private var selectedFilter = "All"
-    let filters = ["All", "Vegan", "Vegetarian", "Halal"]
+    let filters = ["All", "High Protein", "Vegetarian", "Halal", "Low Calorie"]
 
     let diningHalls = [
         DiningHallInfo(name: "Worcester Commons",
@@ -41,7 +43,13 @@ struct LandingView: View {
                    openHour: 7, closeHour: 21,
                    hoursDisplay: "07:00 AM - 09:00 PM")
     ]
-
+    
+    var userName: String { auth.fullName.components(separatedBy: " ").first ?? "User" }
+    
+    var userInitials: String {
+        let parts = auth.fullName.components(separatedBy: " ")
+        return parts.compactMap { $0.first }.prefix(2).map(String.init).joined().uppercased()
+    }
 
     var todaysMeals: [DiningMeal] {
         let formatter = DateFormatter()
@@ -51,19 +59,22 @@ struct LandingView: View {
         let filtered = menuService.meals.filter { meal in
             guard meal.date == today else { return false }
             switch selectedFilter {
-            case "Vegan":
-                return meal.dietaryFlags.isVegan
+            case "High Protein":
+                let perMeal = Double(proteinTarget) / 10.0
+                return (meal.protein ?? 0) >= perMeal
             case "Vegetarian":
-                return meal.dietaryFlags.isVegetarian
+                return meal.dietaryFlags.isVegetarian || meal.dietaryFlags.isVegan
             case "Halal":
                 return meal.dietaryFlags.isHalal
+            case "Low Calorie":
+                let perMeal = dailyCalories / 3
+                return (meal.calories ?? 999) <= perMeal
             default:
                 return true
             }
         }
         return Array(filtered.prefix(4))
     }
-
 
     var body: some View {
         NavigationStack {
@@ -77,7 +88,10 @@ struct LandingView: View {
                         Text("Hi, \(userName) 👋")
                             .font(.system(size: 14))
                             .foregroundStyle(.white.opacity(0.9))
-                        NavigationLink(destination: ProfileView()) {
+                        // Profile button
+                        Button {
+                            navigateToProfile = true
+                        } label: {
                             ZStack {
                                 Circle()
                                     .fill(Color.crimson)
@@ -86,6 +100,10 @@ struct LandingView: View {
                                     .font(.system(size: 13, weight: .semibold))
                                     .foregroundStyle(.white)
                             }
+                        }
+                        .accessibilityIdentifier("profileButton")
+                        .navigationDestination(isPresented: $navigateToProfile) {
+                            ProfileView()
                         }
                     }
                 }
@@ -120,6 +138,7 @@ struct LandingView: View {
                             Text("Today's Recommendations")
                                 .font(.system(size: 20, weight: .bold))
                                 .foregroundStyle(Color.maroon)
+                                .accessibilityIdentifier("recommendationsTitle")
 
                             if menuService.isLoading {
                                 // Show loading spinner while scraping
@@ -135,7 +154,8 @@ struct LandingView: View {
                                     .foregroundStyle(.gray)
                                     .font(.system(size: 14))
                                     .padding()
-                                
+                                    .accessibilityIdentifier("noMealsText")
+
                             } else {
                                 // Show real scraped meals
                                 LazyVGrid(columns: [
@@ -146,6 +166,7 @@ struct LandingView: View {
                                         MealCard(meal: meal)
                                     }
                                 }
+                                .accessibilityIdentifier("mealsGrid")
                             }
                         }
 
@@ -155,7 +176,7 @@ struct LandingView: View {
                                 .font(.system(size: 20, weight: .bold))
                                 .foregroundStyle(Color.maroon)
                             HStack(spacing: 12) {
-                                NavigationLink(destination: Text("Recipe Search")) {
+                                NavigationLink(destination: RecipeSearchView()) {
                                     ExploreButton(icon: "magnifyingglass",
                                                  title: "Search Recipes",
                                                  color: Color.maroon)
@@ -212,7 +233,7 @@ struct DiningHallCard: View {
     }
 }
 
-//New MealCard using real DiningMeal data
+// New MealCard using real DiningMeal data
 struct MealCard: View {
     let meal: DiningMeal
     @State private var isSaved = false
@@ -242,7 +263,7 @@ struct MealCard: View {
 
             HStack {
                 // Dietary flags
-                if meal.dietaryFlags.isVegan {
+                if meal.dietaryFlags.isVegetarian {
                     Text("V")
                         .font(.system(size: 9, weight: .bold))
                         .foregroundStyle(.green)
@@ -260,6 +281,7 @@ struct MealCard: View {
                         .font(.system(size: 18))
                         .foregroundStyle(.yellow)
                 }
+                .accessibilityIdentifier("saveButton_\(meal.name)")
             }
         }
         .padding(10)
@@ -312,6 +334,7 @@ struct FilterChip: View {
                         .stroke(Color.crimson, lineWidth: 1.5)
                 )
         }
+        .accessibilityIdentifier("filter_\(title)")
     }
 }
 
