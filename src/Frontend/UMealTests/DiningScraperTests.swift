@@ -59,20 +59,18 @@ final class DiningScraperTests: XCTestCase {
 
     func test_cssParser_parsesWellFormedHTML() throws {
         let sampleHTML = """
-        <html><body>
-          <h2>Dinner</h2>
-          <h3>Sauté Station</h3>
-          <ul>
-            <li>
-              <a href="#inline">Grilled Chicken</a>
-              <img src="/legends/icon-hal.png"/>
-            </li>
-            <li>
-              <a href="#inline">Pasta Primavera</a>
-              <img src="/legends/icon-vegan.png"/>
-            </li>
-          </ul>
-        </body></html>
+            <html><body>
+              <h2>Dinner</h2>
+              <h3>Sauté Station</h3>
+              <ul>
+                <li>
+                  <a href="#inline" data-clean-diet-str="Halal">Grilled Chicken</a>
+                </li>
+                <li>
+                  <a href="#inline" data-clean-diet-str="Vegan, Vegetarian">Pasta Primavera</a>
+                </li>
+              </ul>
+            </body></html>
         """
         let meals = try HTMLMenuParser.parse(html: sampleHTML,
                                             hall: .worcester,
@@ -133,16 +131,15 @@ final class DiningScraperTests: XCTestCase {
 
     func test_dietaryFlags_veganImpliesVegetarian() throws {
         let html = """
-        <html><body>
-          <h2>Lunch</h2>
-          <h3>Vegan Station</h3>
-          <ul>
-            <li>
-              <a href="#inline">Tofu Bowl</a>
-              <img src="/legends/icon-vegan.png"/>
-            </li>
-          </ul>
-        </body></html>
+            <html><body>
+              <h2>Lunch</h2>
+              <h3>Vegan Station</h3>
+              <ul>
+                <li>
+                  <a href="#inline" data-clean-diet-str="Vegan, Vegetarian">Tofu Bowl</a>
+                </li>
+              </ul>
+            </body></html>
         """
         let meals = try HTMLMenuParser.parse(html: html, hall: .hampshire, date: "2026-04-15")
         let tofu = meals.first { $0.name == "Tofu Bowl" }
