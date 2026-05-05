@@ -3,40 +3,31 @@
 //
 //  Created by Zhiyang Wen on 3/31/26.
 //
+
 import SwiftUI
 
-// Colors
-extension Color {
-    static let maroon = Color(red: 0.369, green: 0.008, blue: 0.008) // #5E0202
-    static let crimson = Color(red: 0.647, green: 0.000, blue: 0.204) // #A50034
-    static let Gray      = Color(red: 0.541, green: 0.608, blue: 0.659) // #8A9BA8
-}
-
 struct LoginView: View {
-    @State private var email: String    = ""
-    @State private var password: String = ""
-    @State private var isLoading: Bool  = false
+    @EnvironmentObject var auth: AuthManager
+    @State private var email = ""
+    @State private var password = ""
 
     var body: some View {
         NavigationStack {
             ZStack {
-                Color(.systemGray6).ignoresSafeArea() // Whole background
+                Color(.systemGray6).ignoresSafeArea()
                 VStack(spacing: 0) {
                     // Header
                     VStack(spacing: 12) {
-                        // Our logo
                         ZStack {
                             Circle()
                                 .fill(Color.white)
                                 .frame(width: 100, height: 100)
-                            // Imported from figma
                             Image("Vector")
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 60, height: 60)
                                 .foregroundColor(.white)
                         }
-
                         Text("UMeal")
                             .font(.system(size: 35, weight: .bold))
                             .foregroundColor(.white)
@@ -46,7 +37,6 @@ struct LoginView: View {
                     .padding(.bottom, 40)
                     .background(Color.maroon)
 
-            
                     VStack(spacing: 30) {
                         // Email field
                         VStack(alignment: .leading, spacing: 10) {
@@ -64,6 +54,7 @@ struct LoginView: View {
                                     RoundedRectangle(cornerRadius: 30)
                                         .stroke(Color(.systemGray4), lineWidth: 2)
                                 )
+                                .accessibilityIdentifier("emailField")
                         }
 
                         // Password field
@@ -78,17 +69,25 @@ struct LoginView: View {
                                 .cornerRadius(30)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 30)
-                                .stroke(Color(.systemGray4), lineWidth: 2)
+                                        .stroke(Color(.systemGray4), lineWidth: 2)
                                 )
+                                .accessibilityIdentifier("passwordField")
+                        }
+
+                        
+                        if !auth.errorMessage.isEmpty {
+                            Text(auth.errorMessage)
+                                .foregroundColor(.red)
+                                .font(.system(size: 13))
+                                .multilineTextAlignment(.center)
                         }
 
                         // Forgot password
                         HStack {
                             Spacer()
                             Button("Forget password?") {
-                                // TODO: Handle forget password right here
                             }
-                            .font(.system(size: 13 ,weight: .semibold))
+                            .font(.system(size: 13, weight: .semibold))
                             .foregroundColor(Color.crimson)
                         }
 
@@ -97,7 +96,7 @@ struct LoginView: View {
                             handleSignIn()
                         } label: {
                             Group {
-                                if isLoading {
+                                if auth.isLoading {
                                     ProgressView()
                                         .tint(.white)
                                 } else {
@@ -111,7 +110,8 @@ struct LoginView: View {
                             .background(Color.crimson)
                             .cornerRadius(25)
                         }
-                        .disabled(isLoading)
+                        .disabled(auth.isLoading)
+                        .accessibilityIdentifier("signInButton")
 
                         // Divider
                         HStack {
@@ -125,11 +125,10 @@ struct LoginView: View {
                             Rectangle()
                                 .frame(height: 0.5)
                                 .foregroundColor(Color(.systemGray4))
-
                         }
 
                         // Create account
-                        NavigationLink(destination: Text("Sign Up")) {
+                        NavigationLink(destination: SignUpView()) {
                             Text("Create account")
                                 .font(.system(size: 18, weight: .semibold))
                                 .foregroundColor(Color.maroon)
@@ -149,16 +148,13 @@ struct LoginView: View {
 
     private func handleSignIn() {
         guard !email.isEmpty, !password.isEmpty else { return }
-        isLoading = true
-        // TODO: Authentication API right here
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            isLoading = false
+        Task {
+            await auth.login(email: email, password: password)
         }
     }
 }
 
 #Preview {
     LoginView()
+        .environmentObject(AuthManager())
 }
-
-

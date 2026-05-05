@@ -6,23 +6,19 @@
 //
 
 // Colors
-extension Color {
-    static let maroon = Color(red: 0.369, green: 0.008, blue: 0.008) // #5E0202
-    static let crimson = Color(red: 0.647, green: 0.000, blue: 0.204) // #A50034
-    static let Gray      = Color(red: 0.541, green: 0.608, blue: 0.659) // #8A9BA8
-}
+
 
 import SwiftUI
 
 struct Header: View {
     var body: some View {
-        VStack(spacing: 12) {
-            // Our logo
+        VStack(spacing: 10) {
+            // logo
             ZStack {
                 Circle()
                     .fill(Color.white)
                     .frame(width: 100, height: 100)
-                // Imported from figma
+           
                 Image("Vector")
                     .resizable()
                     .scaledToFit()
@@ -35,8 +31,8 @@ struct Header: View {
                 .foregroundColor(.white)
         }
         .frame(maxWidth: .infinity)
-        .padding(.top, 60)
-        .padding(.bottom, 40)
-        .background(Color.maroon)
+        .padding(.top, 18)
+        .padding(.bottom, 18)
+        .background(Color(red: 0.369, green: 0.008, blue: 0.008))
     }
 }

@@ -6,8 +6,24 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		5BC2596E2FA3D1E900F5C624 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = 5BC2596D2FA3D1E900F5C624 /* SwiftSoup */; };
+		5BC259712FA3D30000F5C624 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 5BC259702FA3D30000F5C624 /* Supabase */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		5BC25A4B2FA4432600F5C624 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5B7278622F7CB0CF007CEDEE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5B7278692F7CB0CF007CEDEE;
+			remoteInfo = UMeal;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		5B72786A2F7CB0D0007CEDEE /* UMeal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UMeal.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5BC25A472FA4432600F5C624 /* UMealTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UMealTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -16,10 +32,24 @@
 			path = UMeal;
 			sourceTree = "<group>";
 		};
+		5BC25A482FA4432600F5C624 /* UMealTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = UMealTests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		5B7278672F7CB0CF007CEDEE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5BC259712FA3D30000F5C624 /* Supabase in Frameworks */,
+				5BC2596E2FA3D1E900F5C624 /* SwiftSoup in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5BC25A442FA4432600F5C624 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -33,6 +63,7 @@
 			isa = PBXGroup;
 			children = (
 				5B72786C2F7CB0D0007CEDEE /* UMeal */,
+				5BC25A482FA4432600F5C624 /* UMealTests */,
 				5B72786B2F7CB0D0007CEDEE /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,6 +72,7 @@
 			isa = PBXGroup;
 			children = (
 				5B72786A2F7CB0D0007CEDEE /* UMeal.app */,
+				5BC25A472FA4432600F5C624 /* UMealTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -65,10 +97,35 @@
 			);
 			name = UMeal;
 			packageProductDependencies = (
+				5BC2596D2FA3D1E900F5C624 /* SwiftSoup */,
+				5BC259702FA3D30000F5C624 /* Supabase */,
 			);
 			productName = UMeal;
 			productReference = 5B72786A2F7CB0D0007CEDEE /* UMeal.app */;
 			productType = "com.apple.product-type.application";
+		};
+		5BC25A462FA4432600F5C624 /* UMealTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5BC25A4D2FA4432600F5C624 /* Build configuration list for PBXNativeTarget "UMealTests" */;
+			buildPhases = (
+				5BC25A432FA4432600F5C624 /* Sources */,
+				5BC25A442FA4432600F5C624 /* Frameworks */,
+				5BC25A452FA4432600F5C624 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				5BC25A4C2FA4432600F5C624 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				5BC25A482FA4432600F5C624 /* UMealTests */,
+			);
+			name = UMealTests;
+			packageProductDependencies = (
+			);
+			productName = UMealTests;
+			productReference = 5BC25A472FA4432600F5C624 /* UMealTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -83,6 +140,10 @@
 					5B7278692F7CB0CF007CEDEE = {
 						CreatedOnToolsVersion = 26.4;
 					};
+					5BC25A462FA4432600F5C624 = {
+						CreatedOnToolsVersion = 26.4;
+						TestTargetID = 5B7278692F7CB0CF007CEDEE;
+					};
 				};
 			};
 			buildConfigurationList = 5B7278652F7CB0CF007CEDEE /* Build configuration list for PBXProject "UMeal" */;
@@ -94,18 +155,30 @@
 			);
 			mainGroup = 5B7278612F7CB0CF007CEDEE;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				5BC2596C2FA3D1E900F5C624 /* XCRemoteSwiftPackageReference "SwiftSoup" */,
+				5BC2596F2FA3D30000F5C624 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 5B72786B2F7CB0D0007CEDEE /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				5B7278692F7CB0CF007CEDEE /* UMeal */,
+				5BC25A462FA4432600F5C624 /* UMealTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		5B7278682F7CB0CF007CEDEE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5BC25A452FA4432600F5C624 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -122,7 +195,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		5BC25A432FA4432600F5C624 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		5BC25A4C2FA4432600F5C624 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5B7278692F7CB0CF007CEDEE /* UMeal */;
+			targetProxy = 5BC25A4B2FA4432600F5C624 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		5B7278732F7CB0D1007CEDEE /* Debug */ = {
@@ -306,6 +394,46 @@
 			};
 			name = Release;
 		};
+		5BC25A4E2FA4432600F5C624 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zhiyang.UMealTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UMeal.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/UMeal";
+			};
+			name = Debug;
+		};
+		5BC25A4F2FA4432600F5C624 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zhiyang.UMealTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UMeal.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/UMeal";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -327,7 +455,48 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		5BC25A4D2FA4432600F5C624 /* Build configuration list for PBXNativeTarget "UMealTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5BC25A4E2FA4432600F5C624 /* Debug */,
+				5BC25A4F2FA4432600F5C624 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		5BC2596C2FA3D1E900F5C624 /* XCRemoteSwiftPackageReference "SwiftSoup" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/scinfu/SwiftSoup";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.13.4;
+			};
+		};
+		5BC2596F2FA3D30000F5C624 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		5BC2596D2FA3D1E900F5C624 /* SwiftSoup */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5BC2596C2FA3D1E900F5C624 /* XCRemoteSwiftPackageReference "SwiftSoup" */;
+			productName = SwiftSoup;
+		};
+		5BC259702FA3D30000F5C624 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5BC2596F2FA3D30000F5C624 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 5B7278622F7CB0CF007CEDEE /* Project object */;
 }

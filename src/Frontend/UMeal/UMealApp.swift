@@ -9,9 +9,20 @@ import SwiftUI
 
 @main
 struct UMealApp: App {
+    @StateObject private var auth = AuthManager()
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if CommandLine.arguments.contains("UI_TESTING") || auth.isLoggedIn {
+                LandingView()
+                    .environmentObject(auth) 
+            } else {
+                LoginView()
+                    .environmentObject(auth)
+                    //.task {
+                        //await auth.checkSession()
+                    //}
+            }
         }
     }
 }
