@@ -65,7 +65,6 @@ enum HTMLMenuParser {
         guard let body = doc.body() else { return [] }
 
         // Select h2, h3, and ONLY li items whose anchor href is "#inline"
-        // This precisely targets menu items and excludes all navigation
         let elements = try body.select("h2, h3, li:has(a[href='#inline'])")
 
         for el in elements.array() {
@@ -90,19 +89,39 @@ enum HTMLMenuParser {
 
             // It's a menu item li
             guard let period = currentPeriod else { continue }
-            guard let name = try? el.select("a").first()?.text(),
-                  !name.isEmpty else { continue }
+            guard let anchor = try? el.select("a[href='#inline']").first() else { continue }
 
+            // Get item name
+            let name = ((try? anchor.text()) ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !name.isEmpty else { continue }
+
+            // Read all nutrition from data- attributes
+            let calories = Int((try? anchor.attr("data-calories")) ?? "")
+            let proteinStr = ((try? anchor.attr("data-protein")) ?? "").replacingOccurrences(of: "g", with: "")
+            let carbsStr = ((try? anchor.attr("data-total-carb")) ?? "").replacingOccurrences(of: "g", with: "")
+            let fatStr = ((try? anchor.attr("data-total-fat")) ?? "").replacingOccurrences(of: "g", with: "")
+            let protein = Double(proteinStr)
+            let carbs = Double(carbsStr)
+            let fat = Double(fatStr)
+
+            // Dietary flags from data-diet-str
             var flags = DietaryFlags()
-            if let imgs = try? el.select("img") {
-                for img in imgs.array() {
-                    let src = (try? img.attr("src")) ?? ""
-                    if src.contains("icon-vegan")  { flags.isVegan = true; flags.isVegetarian = true }
-                    if src.contains("icon-veg")    { flags.isVegetarian = true }
-                    if src.contains("icon-hal")    { flags.isHalal = true }
-                    if src.contains("icon-kosher") { flags.isKosher = true }
-                    if src.contains("icon-gluten") { flags.isGlutenFree = true }
-                }
+            let dietStr = ((try? anchor.attr("data-clean-diet-str")) ?? "").lowercased()
+
+            if dietStr.contains("vegan")        { flags.isVegan = true; flags.isVegetarian = true }
+            if dietStr.contains("vegetarian")   { flags.isVegetarian = true }
+            if dietStr.contains("plant based")  { flags.isVegetarian = true }
+            if dietStr.contains("halal")        { flags.isHalal = true }
+            if dietStr.contains("kosher")       { flags.isKosher = true }
+            if dietStr.contains("gluten")       { flags.isGlutenFree = true }
+
+            // Allergens from data-allergens
+            let allergenStr = (try? anchor.attr("data-allergens")) ?? ""
+            if !allergenStr.isEmpty {
+                flags.allergens = allergenStr
+                    .components(separatedBy: ",")
+                    .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                    .filter { !$0.isEmpty }
             }
 
             meals.append(DiningMeal(
@@ -111,13 +130,16 @@ enum HTMLMenuParser {
                 date:         date,
                 mealPeriod:   period,
                 station:      currentStation,
-                dietaryFlags: flags
+                dietaryFlags: flags,
+                calories:     calories,
+                protein:      protein,
+                carbs:        carbs,
+                fat:          fat
             ))
         }
 
         return meals
     }
-
     // MARK: - Individual Item Parser
 
     private static func parseMealItem(

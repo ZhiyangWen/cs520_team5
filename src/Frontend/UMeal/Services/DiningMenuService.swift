@@ -32,6 +32,12 @@ final class DiningMenuService: ObservableObject {
         if !cached.isEmpty {
             meals = cached
         }
+        
+        let isUITesting = CommandLine.arguments.contains("UI_TESTING")
+            if isUITesting {
+                print("🧪 UI Testing mode — using cache only.")
+                return
+            }
 
         // 2. Check if any hall is stale
         let staleHalls = DiningHall.allCases.filter { DiningCache.isStale(for: $0) }
