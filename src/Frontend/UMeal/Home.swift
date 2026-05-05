@@ -22,5 +22,5 @@ struct Home: View {
 }
 
 #Preview {
-    Home()
+    Home(username: "someValue")
 }

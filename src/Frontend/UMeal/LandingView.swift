@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct DiningHall: Identifiable {
+struct DiningHallInfo: Identifiable {
     let id = UUID()
     let name: String
     let openHour: Int
@@ -19,51 +19,66 @@ struct DiningHall: Identifiable {
     }
 }
 
-
-struct Recommendation: Identifiable {
-    let id = UUID()
-    let name: String
-    let calories: Int
-    let protein: Double
-    let rating: Int
-}
-
-
 struct LandingView: View {
-    let userName = "Zhiyang"
-    let userInitials = "ZW"
+    @AppStorage("proteinTarget") private var proteinTarget: Int = 120
+    @AppStorage("dailyCalories") private var dailyCalories: Int = 1000
+    @StateObject private var menuService = DiningMenuService()
+    @State private var navigateToProfile = false
+    @EnvironmentObject private var auth: AuthManager
 
     @State private var selectedFilter = "All"
-    let filters = ["All", "High Protein", "Vegan", "Low Calories"] // Could have more options
+    let filters = ["All", "High Protein", "Vegetarian", "Halal", "Low Calorie"]
 
     let diningHalls = [
-        DiningHall(name: "Worcester Commons",
+        DiningHallInfo(name: "Worcester Commons",
                    openHour: 7, closeHour: 21,
                    hoursDisplay: "07:00 AM - 09:00 PM"),
-        DiningHall(name: "Franklin Dining Commons",
+        DiningHallInfo(name: "Franklin Dining Commons",
                    openHour: 7, closeHour: 21,
                    hoursDisplay: "07:00 AM - 09:00 PM"),
-        DiningHall(name: "Berkshire Dining Commons",
+        DiningHallInfo(name: "Berkshire Dining Commons",
                    openHour: 11, closeHour: 21,
                    hoursDisplay: "11:00 AM - 09:00 PM"),
-        DiningHall(name: "Hampshire Dining Commons",
+        DiningHallInfo(name: "Hampshire Dining Commons",
                    openHour: 7, closeHour: 21,
                    hoursDisplay: "07:00 AM - 09:00 PM")
     ]
-
-    let recommendations = [
-        // TODO
-        Recommendation(name: "Baked Chicken Thigh",
-                       calories: 121, protein: 14.2, rating: 2),
-        Recommendation(name: "Caesar Salad",
-                       calories: 95, protein: 8.0, rating: 4)
-    ]
-
     
+    var userName: String { auth.fullName.components(separatedBy: " ").first ?? "User" }
+    
+    var userInitials: String {
+        let parts = auth.fullName.components(separatedBy: " ")
+        return parts.compactMap { $0.first }.prefix(2).map(String.init).joined().uppercased()
+    }
+
+    var todaysMeals: [DiningMeal] {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        let today = formatter.string(from: Date())
+
+        let filtered = menuService.meals.filter { meal in
+            guard meal.date == today else { return false }
+            switch selectedFilter {
+            case "High Protein":
+                let perMeal = Double(proteinTarget) / 10.0
+                return (meal.protein ?? 0) >= perMeal
+            case "Vegetarian":
+                return meal.dietaryFlags.isVegetarian || meal.dietaryFlags.isVegan
+            case "Halal":
+                return meal.dietaryFlags.isHalal
+            case "Low Calorie":
+                let perMeal = dailyCalories / 3
+                return (meal.calories ?? 999) <= perMeal
+            default:
+                return true
+            }
+        }
+        return Array(filtered.prefix(4))
+    }
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // Fixed Header
                 HStack {
                     Text("UMeal")
                         .font(.system(size: 24, weight: .bold))
@@ -73,7 +88,10 @@ struct LandingView: View {
                         Text("Hi, \(userName) 👋")
                             .font(.system(size: 14))
                             .foregroundStyle(.white.opacity(0.9))
-                        NavigationLink(destination: Text(" User Profile")){
+                        // Profile button
+                        Button {
+                            navigateToProfile = true
+                        } label: {
                             ZStack {
                                 Circle()
                                     .fill(Color.crimson)
@@ -83,6 +101,10 @@ struct LandingView: View {
                                     .foregroundStyle(.white)
                             }
                         }
+                        .accessibilityIdentifier("profileButton")
+                        .navigationDestination(isPresented: $navigateToProfile) {
+                            ProfileView()
+                        }
                     }
                 }
                 .padding(.horizontal, 20)
@@ -90,7 +112,6 @@ struct LandingView: View {
                 .background(Color.maroon)
                 .padding(.top, 60)
 
-                // All scrollable content below header
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 20) {
 
@@ -117,13 +138,35 @@ struct LandingView: View {
                             Text("Today's Recommendations")
                                 .font(.system(size: 20, weight: .bold))
                                 .foregroundStyle(Color.maroon)
-                            LazyVGrid(columns: [
-                                GridItem(.flexible()),
-                                GridItem(.flexible())
-                            ], spacing: 12) {
-                                ForEach(recommendations) { rec in
-                                    RecommendationCard(rec: rec)
+                                .accessibilityIdentifier("recommendationsTitle")
+
+                            if menuService.isLoading {
+                                // Show loading spinner while scraping
+                                HStack {
+                                    Spacer()
+                                    ProgressView("Loading menu...")
+                                    Spacer()
                                 }
+                                .padding()
+                            } else if todaysMeals.isEmpty {
+                                // Show message if no meals found
+                                Text("No meals available today.")
+                                    .foregroundStyle(.gray)
+                                    .font(.system(size: 14))
+                                    .padding()
+                                    .accessibilityIdentifier("noMealsText")
+
+                            } else {
+                                // Show real scraped meals
+                                LazyVGrid(columns: [
+                                    GridItem(.flexible()),
+                                    GridItem(.flexible())
+                                ], spacing: 12) {
+                                    ForEach(todaysMeals, id: \.name) { meal in
+                                        MealCard(meal: meal)
+                                    }
+                                }
+                                .accessibilityIdentifier("mealsGrid")
                             }
                         }
 
@@ -133,7 +176,7 @@ struct LandingView: View {
                                 .font(.system(size: 20, weight: .bold))
                                 .foregroundStyle(Color.maroon)
                             HStack(spacing: 12) {
-                                NavigationLink(destination: Text("Recipe Search")) {
+                                NavigationLink(destination: RecipeSearchView()) {
                                     ExploreButton(icon: "magnifyingglass",
                                                  title: "Search Recipes",
                                                  color: Color.maroon)
@@ -153,13 +196,16 @@ struct LandingView: View {
             }
             .navigationBarHidden(true)
             .ignoresSafeArea(edges: .top)
+            .task {
+                await menuService.loadOnLaunch()
+            }
         }
     }
 }
 
-// Dining Hall
+// Dining Hall Card
 struct DiningHallCard: View {
-    let hall: DiningHall
+    let hall: DiningHallInfo
 
     var body: some View {
         HStack {
@@ -184,7 +230,63 @@ struct DiningHallCard: View {
         .padding(.vertical, 15)
         .background(hall.isOpen ? Color.maroon : Color.maroon.opacity(0.6))
         .cornerRadius(25)
-    
+    }
+}
+
+// New MealCard using real DiningMeal data
+struct MealCard: View {
+    let meal: DiningMeal
+    @State private var isSaved = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color.maroon.opacity(0.3))
+                .frame(height: 70)
+
+            Text(meal.name)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(.white)
+                .lineLimit(2)
+
+            if let calories = meal.calories {
+                Text("Calories \(calories)")
+                    .font(.system(size: 10))
+                    .foregroundStyle(.white.opacity(0.8))
+            }
+
+            if let protein = meal.protein {
+                Text("Protein \(protein, specifier: "%.1f")g")
+                    .font(.system(size: 10))
+                    .foregroundStyle(.white.opacity(0.8))
+            }
+
+            HStack {
+                // Dietary flags
+                if meal.dietaryFlags.isVegetarian {
+                    Text("V")
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundStyle(.green)
+                }
+                if meal.dietaryFlags.isHalal {
+                    Text("H")
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundStyle(.yellow)
+                }
+                Spacer()
+                Button {
+                    isSaved.toggle()
+                } label: {
+                    Image(systemName: isSaved ? "star.fill" : "star")
+                        .font(.system(size: 18))
+                        .foregroundStyle(.yellow)
+                }
+                .accessibilityIdentifier("saveButton_\(meal.name)")
+            }
+        }
+        .padding(10)
+        .background(Color.maroon)
+        .cornerRadius(12)
     }
 }
 
@@ -232,56 +334,11 @@ struct FilterChip: View {
                         .stroke(Color.crimson, lineWidth: 1.5)
                 )
         }
+        .accessibilityIdentifier("filter_\(title)")
     }
 }
 
-// Recommendation
-struct RecommendationCard: View {
-    let rec: Recommendation
-    @State private var isSaved = false
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            RoundedRectangle(cornerRadius: 8)
-                .fill(Color.maroon.opacity(0.3))
-                .frame(height: 70)
-
-            Text(rec.name)
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundStyle(.white)
-            Text("Calories \(rec.calories)")
-                .font(.system(size: 10))
-                .foregroundStyle(.white.opacity(0.8))
-            Text("Protein \(rec.protein, specifier: "%.1f")g")
-                .font(.system(size: 10))
-                .foregroundStyle(.white.opacity(0.8))
-
-            HStack {
-                HStack(spacing: 2) {
-                    ForEach(1...5, id: \.self) { star in
-                        Image(systemName: star <= rec.rating ? "star.fill" : "star")
-                            .font(.system(size: 10))
-                            .foregroundStyle(.white.opacity(0.5))
-                    }
-                }
-                Spacer()
-                Button {
-                    isSaved.toggle()
-                } label: {
-                    Image(systemName: isSaved ? "star.fill" : "star")
-                        .font(.system(size: 18))
-                        .foregroundStyle(.yellow)
-                }
-            }
-        }
-        .padding(10)
-        .background(Color.maroon)
-        .cornerRadius(12)
-    }
-}
-   
-
-//Explore
+// Explore
 struct ExploreButton: View {
     let icon: String
     let title: String
@@ -302,7 +359,6 @@ struct ExploreButton: View {
         .cornerRadius(14)
     }
 }
-
 
 #Preview {
     LandingView()

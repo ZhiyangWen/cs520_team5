@@ -1,11 +1,12 @@
-// Services/DiningMenuService.swift
-// UMeal – CS520 Team 5
-// Author: Pornnapin Tangkoskul
+//// Services/DiningMenuService.swift
+//// UMeal – CS520 Team 5
+//// Author: Pornnapin Tangkoskul
+////
+//// App-facing service that coordinates scraping, caching, and data access.
+//// ViewModels should depend on this class, not on the scraper directly.
 //
-// App-facing service that coordinates scraping, caching, and data access.
-// ViewModels should depend on this class, not on the scraper directly.
-
 import Foundation
+import Combine
 
 @MainActor
 final class DiningMenuService: ObservableObject {
@@ -27,9 +28,16 @@ final class DiningMenuService: ObservableObject {
     func loadOnLaunch() async {
         // 1. Load cached data instantly so UI has something to show
         let cached = DiningCache.loadAll()
+        print("📦 Cached meals loaded: \(cached.count)")
         if !cached.isEmpty {
             meals = cached
         }
+        
+        let isUITesting = CommandLine.arguments.contains("UI_TESTING")
+            if isUITesting {
+                print("🧪 UI Testing mode — using cache only.")
+                return
+            }
 
         // 2. Check if any hall is stale
         let staleHalls = DiningHall.allCases.filter { DiningCache.isStale(for: $0) }
@@ -108,6 +116,7 @@ final class DiningMenuService: ObservableObject {
     private func integrate(results: [HallScrapeResult]) {
         // Merge new meals into our state, replacing old data for each hall
         for result in results {
+            print("\(result.hall.displayName): \(result.meals.count) meals, \(result.errors.count) errors")
             meals.removeAll { $0.hall == result.hall }
             meals.append(contentsOf: result.meals)
 

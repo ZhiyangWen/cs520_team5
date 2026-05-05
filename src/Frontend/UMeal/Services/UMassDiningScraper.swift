@@ -1,11 +1,11 @@
-// Services/UMassDiningScraper.swift
-// UMeal – CS520 Team 5
-// Author: Pornnapin Tangkoskul
+//// Services/UMassDiningScraper.swift
+//// UMeal – CS520 Team 5
+//// Author: Pornnapin Tangkoskul
+////
+//// Dependency: SwiftSoup  (https://github.com/scinfu/SwiftSoup)
+//// Add to Package.swift or Xcode SPM:
+////   .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.6.0")
 //
-// Dependency: SwiftSoup  (https://github.com/scinfu/SwiftSoup)
-// Add to Package.swift or Xcode SPM:
-//   .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.6.0")
-
 import Foundation
 import SwiftSoup
 
@@ -66,7 +66,7 @@ actor UMassDiningScraper {
 
     /// Base URL pattern. `<hall>` and `<date>` are replaced at runtime.
     private static let menuURLTemplate =
-        "https://umassdining.com/locations-menus/<hall>/<date>"
+        "https://umassdining.com/locations-menus/<hall>/menu?date=<date>"
 
     // MARK: - Public Entry Point
 
