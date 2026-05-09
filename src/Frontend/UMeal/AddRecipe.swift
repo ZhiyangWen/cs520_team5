@@ -22,8 +22,8 @@ struct AddRecipe: View {
     private let crimson = Color(red: 0.647, green: 0.000, blue: 0.204)
 
     var isFormValid: Bool {
-        !title.trimmingCharacters(in: .whitespaces).isEmpty &&
-        !instructions.trimmingCharacters(in: .whitespaces).isEmpty
+        !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        !instructions.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     var body: some View {
