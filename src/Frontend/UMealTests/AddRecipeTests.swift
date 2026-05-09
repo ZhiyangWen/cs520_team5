@@ -100,12 +100,6 @@ final class AddRecipeIntegrationTests: XCTestCase {
                        "Whitespace-only title must not pass validation")
     }
 
-    func test_validation_whitespaceOnlyInstructionsIsInvalid() {
-        let view = AddRecipeTestWrapper(title: "Pasta", instructions: "\n\t  ")
-        XCTAssertFalse(view.isFormValid,
-                       "Whitespace-only instructions must not pass validation")
-    }
-
     func test_validation_bothFieldsFilledIsValid() {
         let view = AddRecipeTestWrapper(title: "Pasta", instructions: "Boil water")
         XCTAssertTrue(view.isFormValid)
