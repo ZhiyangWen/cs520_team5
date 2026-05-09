@@ -44,11 +44,13 @@ struct RecipeSearchView: View {
              VStack(spacing: 12) {
                    Header()
                         
-                   HStack {
-                        Image(systemName: "line.3.horizontal").foregroundColor(.gray)
-                            Spacer()
-                            Image(systemName: "magnifyingglass").foregroundColor(maroon)
-                   }
+                    HStack {
+                         Image(systemName: "line.3.horizontal").foregroundColor(.gray)
+                         Spacer()
+                         TextField("Search recipes...", text: $searchText)
+                             .multilineTextAlignment(.trailing)
+                         Image(systemName: "magnifyingglass").foregroundColor(maroon)
+                     }
                         .padding(.horizontal, 16)
                         .padding(.vertical, 12)
                         .background(Color(.systemBackground))
@@ -111,7 +113,8 @@ struct RecipeSearchView: View {
                                         .execute()
                                         .value
                                 } catch {
-                                    print("Failed to fetch recipes: \(error)")
+                                    print("Failed to fetch recipes: \(error.localizedDescription))")
+                                
                                 }
                             }
                         }
