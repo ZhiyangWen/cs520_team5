@@ -58,7 +58,11 @@ Notifications
 5. Build and run
    - Select iPhone simulator
    - Build and run
-
+  
+### Dependencies
+The following Swift packages are automatically resolved by Xcode:
+- Supabase Swift SDK
+- SwiftSoup (HTML parsing)
 
 
 
