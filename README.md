@@ -59,10 +59,28 @@ Notifications
    - Select iPhone simulator
    - Build and run
   
-### Dependencies
-The following Swift packages are automatically resolved by Xcode:
-- Supabase Swift SDK
-- SwiftSoup (HTML parsing)
+## Deployment
+
+UMeal is currently configured for local development and simulator 
+testing only. App Store deployment is not set up at this stage.
+
+## Dependencies
+
+All dependencies are managed via Swift Package Manager (SPM) and are
+automatically resolved when the project is opened in Xcode.
+
+| Package | Version |
+|---------|---------|
+| supabase-swift | 2.46.0 |
+| SwiftSoup | 2.13.4 |
+| swift-crypto | 4.5.0 |
+| swift-http-types | 1.5.1 |
+| swift-clocks | 1.0.6 |
+| swift-concurrency-extras | 1.3.2 |
+| swift-asn1 | 1.7.0 |
+| xctest-dynamic-overlay | 1.9.0 |
+
+Full dependency details are available in `Package.resolved`.
 
 
 
