@@ -39,7 +39,7 @@ Notifications
 ## How to Run the Project
 
 ### Requirements
-- Mac with Xcode 25.4 or later
+- Mac with Xcode 15.4 or later
 
 ### Steps
 1. Clone the repository
