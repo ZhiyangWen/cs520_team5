@@ -82,8 +82,11 @@ automatically resolved when the project is opened in Xcode.
 
 Full dependency details are available in `Package.resolved`.
 
-
-
+## Additional Documentation
+- [Frontend Documentation](src/Frontend/FrontendREADME.md)
+- [Database Documentation](supabase/SupabaseREADME.md)
+- [Testing Documentation](src/Frontend/UMealTests/TestsREADME.md)
+- [API Documentation](docs/index.html)
 
 
 
