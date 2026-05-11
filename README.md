@@ -61,8 +61,7 @@ Notifications
   
 ## Deployment
 
-UMeal is currently configured for local development and simulator 
-testing only. App Store deployment is not set up at this stage.
+UMeal is currently configured for local development and simulator testing using Xcode. The app runs on iOS simulator and can be deployed to physical devices via Xcode for testing purposes. App Store or TestFlight distribution has not been set up at this stage of development. The backend is powered by Supabase, which is live and accessible during development.
 
 ## Dependencies
 
